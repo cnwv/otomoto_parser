@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "otomoto-parser"
+version = "0.1.0"
+description = ""
+authors = ["cnwv <115669384+cnwv@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+scrapy = "^2.11.1"
+pymongo = "^4.6.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
