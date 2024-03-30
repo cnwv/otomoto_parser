@@ -18,6 +18,7 @@ class PassatSpider(scrapy.Spider):
                              }
 
     def start_requests(self):
+        self.logger.info('Start parsing')
         yield scrapy.Request(url=self.start_urls[0], callback=self.parse_page_count)
 
     def parse_page_count(self, response):

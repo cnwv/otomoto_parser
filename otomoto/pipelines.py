@@ -1,5 +1,7 @@
-from bson import ObjectId
 from pymongo import MongoClient
+import logging
+
+logger = logging.getLogger('otomoto')
 
 
 class OtomotoPipeline:
@@ -19,13 +21,22 @@ class OtomotoMongoPipeline:
     def process_item(self, item, spider):
         if not self.is_car_exist(item):
             self.collection.insert_one(item)
+            return item
         else:
             if item["price"]["price"][0]['price'] != self.last_price:
-                result = self.collection.update_one({'_id': self._id}, {'$push': {'price.price': item['price']['price'][0]}})
+                self.collection.update_one({'_id': self._id},
+                                           {'$push': {'price.price': item['price']['price'][0]}})
+                logger.info(f"Price has changed for car: {item['id']}")
+            else:
+                logger.info(f"Price has not changed for car: {item['id']}")
         return item
 
     def is_car_exist(self, item):
-        car = self.collection.find_one({'id': item['id']})
+        try:
+            car = self.collection.find_one({'id': item['id']})
+        except Exception as e:
+            logging.error(f"Error: {e}. id: {item['id']} url: {item['url']}")
+            return False
         if car:
             self._id = car['_id']
             self.last_price = self.get_last_price(car['price']['price'])
