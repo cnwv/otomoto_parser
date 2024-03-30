@@ -32,16 +32,17 @@ class OtomotoMongoPipeline:
         return item
 
     def is_car_exist(self, item):
+        car = None
         try:
             car = self.collection.find_one({'id': item['id']})
         except Exception as e:
             logging.error(f"Error: {e}. id: {item['id']} url: {item['url']}")
             return False
-        if car:
-            self._id = car['_id']
-            self.last_price = self.get_last_price(car['price']['price'])
-            return True
-        return False
+        finally:
+            if car:
+                self._id = car['_id']
+            self.last_price = self.get_last_price(car['price']['price']) if car else None
+            return True if car else False
 
     def get_last_price(self, data):
         sorted_prices = sorted(data, key=lambda x: x['time'], reverse=True)
