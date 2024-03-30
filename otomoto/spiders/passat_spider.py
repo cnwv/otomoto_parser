@@ -1,4 +1,3 @@
-from pathlib import Path
 import scrapy
 from otomoto.loaders import PassatLoader
 
@@ -7,10 +6,7 @@ class PassatSpider(scrapy.Spider):
     name = "otomoto"
     allowed_domains = ["otomoto.pl"]
     start_urls = ["https://www.otomoto.pl/osobowe/volkswagen/passat/od-2015"]
-    _xpath_selectors = {'pagination': '//li[@data-testid="pagination-list-item"]/a/@href',
-                        'car': '//article[@data-media-size="small"]/section//h1/a/@href'
-                        }
-
+    _xpath_selectors = {'car': '//article[@data-media-size="small"]/section//h1/a/@href'}
     _xpath_data_selectors = {'id': '//p[text()="ID"][last()]/text()',
                              'title': '//h3[contains(@class, "offer-title")]/text()',
                              'price': '//h3[contains(@class, "offer-price__number")]/text()',
@@ -21,12 +17,21 @@ class PassatSpider(scrapy.Spider):
                              'gear_box': '//p[text()="Skrzynia biegów"]/following-sibling::a/text()',
                              }
 
+    def start_requests(self):
+        yield scrapy.Request(url=self.start_urls[0], callback=self.parse_page_count)
+
+    def parse_page_count(self, response):
+        total_pages = response.xpath('//li[contains(@data-testid, "pagination-list-item")]/a/span/text()')[-1].get()
+        for i in range(1, int(total_pages) + 1):
+            url = f'{self.start_urls[0]}?page={i}'
+            yield response.follow(url, self.parse)
+
     def _get_follow(self, response, selector_str, callback):
         for itm in response.xpath(selector_str):
             yield response.follow(itm, callback=callback)
 
     def parse(self, response, *args, **kwargs):
-        yield from self._get_follow(response, self._xpath_selectors['pagination'], self.parse)
+        self.logger.info('Parsing page: %s', response.url)
         yield from self._get_follow(response, self._xpath_selectors['car'], self.car_parse)
 
     def car_parse(self, response):

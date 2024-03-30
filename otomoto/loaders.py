@@ -1,5 +1,5 @@
 from scrapy.loader import ItemLoader
-from itemloaders.processors import TakeFirst, MapCompose
+from itemloaders.processors import TakeFirst
 from datetime import datetime
 from urllib.parse import urljoin
 

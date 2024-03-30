@@ -1,6 +1,7 @@
 from scrapy.crawler import CrawlerProcess
 from scrapy.settings import Settings
 from otomoto.spiders.passat_spider import PassatSpider
+from scrapy.utils.log import configure_logging
 
 if __name__ == '__main__':
     crawler_setting = Settings()
