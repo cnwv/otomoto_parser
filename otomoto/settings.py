@@ -63,7 +63,7 @@ COOKIES_ENABLED = True
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    "otomoto.pipelines.OtomotoPipeline": 300,
+    # "otomoto.pipelines.OtomotoPipeline": 300,
     "otomoto.pipelines.OtomotoMongoPipeline": 400,
 }
 
@@ -96,9 +96,5 @@ FEED_EXPORT_ENCODING = "utf-8"
 LOG_FILE = "otomoto.log"
 LOG_FILE_APPEND = True
 LOG_ENABLED = True
-LOG_ENCODING = "utf-8"
-LOG_LEVEL = "INFO"
-LOG_FORMAT = "%(asctime)s [%(name)s] %(levelname)s: %(message)s"
-LOG_DATEFORMAT = "%Y-%m-%d %H:%M:%S"
 LOG_SHORT_NAMES = True
 LOG_STDOUT = True

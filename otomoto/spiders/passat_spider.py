@@ -1,9 +1,5 @@
 import scrapy
 from otomoto.loaders import PassatLoader
-import logging
-
-logger = logging.getLogger(__name__)
-logger.addHandler(logging.StreamHandler())
 
 
 class PassatSpider(scrapy.Spider):
@@ -36,11 +32,11 @@ class PassatSpider(scrapy.Spider):
             yield response.follow(itm, callback=callback)
 
     def parse(self, response, *args, **kwargs):
-        self.logger.info(f'Parsing page: {response.url} Code: {response.status}')
+        self.logger.debug(f'Parsing page: {response.url} Code: {response.status}')
         yield from self._get_follow(response, self._xpath_selectors['car'], self.car_parse)
 
     def car_parse(self, response):
-        self.logger.info(f'Parsing car: {response.url} Code: {response.status}')
+        self.logger.debug(f'Parsing car: {response.url} Code: {response.status}')
         loader = PassatLoader(response=response)
         loader.add_value('url', response.url)
         for key, xpath in self._xpath_data_selectors.items():

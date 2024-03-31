@@ -29,7 +29,7 @@ def create_company_url(item):
 def get_formated_price(item):
     time = datetime.now().isoformat()
     price = int(item[0].replace(' ', ''))
-    return {'price': [{'time': time, 'price': price}]}
+    return {'prices': [{'time': time, 'price': price}]}
 
 
 def get_int(item):

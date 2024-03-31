@@ -21,11 +21,10 @@ services:
     container_name: scrapy
     depends_on:
       - mongo
-    restart: always
-    volumes:
-      - ./otomoto_scraper:/app
     env_file:
       - .env
+
+
 
 
 

@@ -1,10 +1,5 @@
 from pymongo import MongoClient
-import logging
-
-from config import MongoConfig
-
-logger = logging.getLogger(__name__)
-logger.addHandler(logging.StreamHandler())
+from config import mongo_db
 
 
 class OtomotoPipeline:
@@ -13,8 +8,7 @@ class OtomotoPipeline:
 
 
 class OtomotoMongoPipeline:
-    mongo_db = MongoConfig()
-    client = MongoClient(mongo_db.get_url())
+    client = MongoClient(mongo_db.url)
     db = client[mongo_db.db_name]
     collection = db[mongo_db.collection]
 
@@ -23,32 +17,31 @@ class OtomotoMongoPipeline:
         self._id = _id
 
     def process_item(self, item, spider):
-        logger.debug(f"Processing item: {item['id']}")
-        if not self.is_car_exist(item):
-            self.collection.insert_one(item)
-            logger.debug(f"Car added to database: {item['id']}")
-            return item
-        else:
-            if item["price"]["price"][0]['price'] != self.last_price:
-                self.collection.update_one({'_id': self._id},
-                                           {'$push': {'price.price': item['price']['price'][0]}})
-                logger.debug(f"Price has changed for car: {item['id']}")
+        spider.logger.info(f"Processing car with id: {item['id']}")
+        try:
+            car_exist = self.is_car_exist(item)
+            if not car_exist:
+                self.collection.insert_one(item)
+                spider.logger.debug(f"Car added to database: {item['id']}")
+                return item
             else:
-                logger.debug(f"Price has not changed for car: {item['id']}")
-        return item
+                if item["price"]["prices"][0]['price'] != self.last_price:
+                    self.collection.update_one({'_id': self._id},
+                                               {'$push': {'price.prices': item['price']['prices'][0]}})
+                    spider.logger.info(f"Price has changed for car: {item['id']}")
+                else:
+                    spider.logger.debug(f"Price has not changed for car: {item['id']}")
+                return item
+        except Exception as e:
+            spider.logger.error(f"Error {e} while processing car: {item['id']} url {item['url']}")
+            return item
 
     def is_car_exist(self, item):
-        car = None
-        try:
-            car = self.collection.find_one({'id': item['id']})
-        except Exception as e:
-            logging.error(f"Error: {e}. id: {item['id']} url: {item['url']}")
-            return False
-        finally:
-            if car:
-                self._id = car['_id']
-            self.last_price = self.get_last_price(car['price']['price']) if car else None
-            return True if car else False
+        car = self.collection.find_one({'id': item['id']})
+        if car:
+            self._id = car['_id']
+        self.last_price = self.get_last_price(car['price']['prices']) if car else None
+        return True if car else False
 
     def get_last_price(self, data):
         sorted_prices = sorted(data, key=lambda x: x['time'], reverse=True)
