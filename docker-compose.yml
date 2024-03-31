@@ -6,9 +6,26 @@ services:
     image: mongo
     restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_ROOT_USERNAME: $MONGO_INITDB_ROOT_USERNAME
+      MONGO_INITDB_ROOT_PASSWORD: $MONGO_INITDB_ROOT_PASSWORD
     ports:
       - "27021:27017"
+    volumes:
+        - ./mongo:/data/db
+    env_file:
+      - .env
+
+  scrapy:
+    build:
+      context: .
+    container_name: scrapy
+    depends_on:
+      - mongo
+    restart: always
+    volumes:
+      - ./otomoto_scraper:/app
+    env_file:
+      - .env
+
 
 

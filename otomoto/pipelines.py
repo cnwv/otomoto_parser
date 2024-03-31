@@ -1,7 +1,10 @@
 from pymongo import MongoClient
 import logging
 
-logger = logging.getLogger('otomoto')
+from config import MongoConfig
+
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.StreamHandler())
 
 
 class OtomotoPipeline:
@@ -10,25 +13,28 @@ class OtomotoPipeline:
 
 
 class OtomotoMongoPipeline:
-    client = MongoClient("mongodb://root:example@localhost:27021")
-    db = client["otomoto"]
-    collection = db["otomoto"]
+    mongo_db = MongoConfig()
+    client = MongoClient(mongo_db.get_url())
+    db = client[mongo_db.db_name]
+    collection = db[mongo_db.collection]
 
     def __init__(self, last_price=None, _id=None):
         self.last_price = last_price
         self._id = _id
 
     def process_item(self, item, spider):
+        logger.debug(f"Processing item: {item['id']}")
         if not self.is_car_exist(item):
             self.collection.insert_one(item)
+            logger.debug(f"Car added to database: {item['id']}")
             return item
         else:
             if item["price"]["price"][0]['price'] != self.last_price:
                 self.collection.update_one({'_id': self._id},
                                            {'$push': {'price.price': item['price']['price'][0]}})
-                logger.info(f"Price has changed for car: {item['id']}")
+                logger.debug(f"Price has changed for car: {item['id']}")
             else:
-                logger.info(f"Price has not changed for car: {item['id']}")
+                logger.debug(f"Price has not changed for car: {item['id']}")
         return item
 
     def is_car_exist(self, item):
