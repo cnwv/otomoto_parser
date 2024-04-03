@@ -163,3 +163,4 @@ cython_debug/
 /app/static/images/
 /log.txt
 /mongo/
+/.debugenv
