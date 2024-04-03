@@ -16,5 +16,6 @@ WORKDIR /app
 COPY . /app
 RUN poetry config virtualenvs.create false && poetry install --no-dev
 
-CMD ["python", "main.py"]
+CMD ["sh", "-c", "python main.py & & tail -F otomoto.log"]
+
 

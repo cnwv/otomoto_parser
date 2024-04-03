@@ -8,7 +8,9 @@ class MongoConfig:
         self.db_name = os.getenv("DB")
         self.collection = os.getenv("COLLECTION")
         self.host = os.getenv("HOST")
-        self.url = f"mongodb://{self.MONGO_INITDB_ROOT_USERNAME}:{self.MONGO_INITDB_ROOT_PASSWORD}@{self.host}:27017"
+        self.port = os.getenv("PORT")
+        self.url = f"mongodb://{self.MONGO_INITDB_ROOT_USERNAME}:{self.MONGO_INITDB_ROOT_PASSWORD}@" \
+                   f"{self.host}:{int(self.port)}"
 
 
 mongo_db = MongoConfig()

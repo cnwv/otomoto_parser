@@ -97,4 +97,3 @@ LOG_FILE = "otomoto.log"
 LOG_FILE_APPEND = True
 LOG_ENABLED = True
 LOG_SHORT_NAMES = True
-LOG_STDOUT = True
